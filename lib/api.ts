@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5501';
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5501';
+const API_BASE_URL = rawApiUrl.startsWith('http') ? rawApiUrl : `https://${rawApiUrl}`;
+
 
 export interface ApiResponse<T> {
   success: boolean;
