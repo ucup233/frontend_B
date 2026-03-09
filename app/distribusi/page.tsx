@@ -121,12 +121,21 @@ export default function DistribusiPage() {
     }
   }, [page, limit, searchQ, statusFilter, dateField, startDate, endDate, kategoriFilter, kategoriList]);
 
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQ(searchInput);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1);
     setSearchQ(searchInput);
+    setPage(1);
   };
 
   const handleDelete = async (id: number) => {

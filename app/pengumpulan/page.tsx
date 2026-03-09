@@ -57,12 +57,21 @@ export default function PengumpulanPage() {
     });
   }, []);
 
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQ(searchInput);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   useEffect(() => { fetchData(); }, [page, limit, startDate, endDate, searchQ, jenisMuzakkiFilter, jenisMuzakkiList]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1);
     setSearchQ(searchInput);
+    setPage(1);
   };
 
   const fetchData = async () => {

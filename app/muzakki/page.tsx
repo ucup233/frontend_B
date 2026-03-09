@@ -58,18 +58,16 @@ export default function MuzakkiPage() {
     if (!isAuthenticated) router.push('/login');
   }, [isAuthenticated, router]);
 
-  // Load ref data sekali saja
+  // Load ref data sekali saja (kecuali kelurahan yang sangat besar)
   useEffect(() => {
     const loadRefs = async () => {
       try {
-        const [kecRes, kelRes, jmRes, jupzRes] = await Promise.all([
+        const [kecRes, jmRes, jupzRes] = await Promise.all([
           refApi.list('kecamatan'),
-          refApi.list('kelurahan'),
           refApi.list('jenis-muzakki'),
           refApi.list('jenis-upz'),
         ]);
         if (Array.isArray(kecRes.data)) setKecamatanList(kecRes.data);
-        if (Array.isArray(kelRes.data)) setKelurahanAll(kelRes.data);
         if (Array.isArray(jmRes.data)) setJenisMuzakkiList(jmRes.data);
         if (Array.isArray(jupzRes.data)) setJenisUpzList(jupzRes.data);
       } catch (e) {
@@ -79,6 +77,15 @@ export default function MuzakkiPage() {
     loadRefs();
   }, []);
 
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQ(searchInput);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   useEffect(() => { fetchData(); }, [page, limit, searchQ]);
 
   const fetchData = async () => {
@@ -86,9 +93,8 @@ export default function MuzakkiPage() {
     setError(null);
     try {
       const res = await muzakkiApi.list({ q: searchQ || undefined, page, limit });
-      const resData: any = res; // Response object { success, data, total, ... }
+      const resData: any = res;
       if (resData) {
-        // Correctly handle response structure
         const arr = resData.data ?? [];
         setList(arr);
         setTotal(resData.total ?? arr.length);
@@ -102,8 +108,8 @@ export default function MuzakkiPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1);
     setSearchQ(searchInput);
+    setPage(1);
   };
 
   const handleDelete = async (id: number, nama: string) => {
@@ -321,9 +327,9 @@ export default function MuzakkiPage() {
                 <span className="text-muted-foreground">Jenis UPZ</span>
                 <span>{detailData.JenisUpz?.nama || detailData.jenisUpz?.nama || detailData.jenis_upz?.nama || refName(jenisUpzList, detailData.jenis_upz_id)}</span>
                 <span className="text-muted-foreground">Kecamatan</span>
-                <span>{detailData.Kecamatan?.nama || detailData.kecamatan?.nama || detailData.nama_kecamatan || refName(kecamatanList, detailData.kecamatan_id)}</span>
+                <span>{detailData.Kecamatan?.nama || detailData.kecamatan?.nama || detailData.nama_kecamatan || '-'}</span>
                 <span className="text-muted-foreground">Kelurahan</span>
-                <span>{detailData.Kelurahan?.nama || detailData.kelurahan?.nama || detailData.nama_kelurahan || refName(kelurahanAll, detailData.kelurahan_id)}</span>
+                <span>{detailData.Kelurahan?.nama || detailData.kelurahan?.nama || detailData.nama_kelurahan || '-'}</span>
                 <span className="text-muted-foreground">Tanggal Registrasi</span>
                 <span>{detailData.created_at ? new Date(detailData.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-'}</span>
 

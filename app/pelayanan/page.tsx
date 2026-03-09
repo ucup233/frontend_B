@@ -57,20 +57,29 @@ export default function PelayananPage() {
     if (!isAuthenticated) router.push('/login');
   }, [isAuthenticated, router]);
 
+  // Load refs (excluding large kelurahan table)
   useEffect(() => {
     const load = async () => {
       try {
-        const [asnafRes, kecRes, kategoriRes, kelRes] = await Promise.all([
-          refApi.getAsnaf(), refApi.getKecamatan(), refApi.getKategoriMustahiq(), refApi.list('kelurahan'),
+        const [asnafRes, kecRes, kategoriRes] = await Promise.all([
+          refApi.getAsnaf(), refApi.getKecamatan(), refApi.getKategoriMustahiq()
         ]);
         if (asnafRes.data) setAsnafList(asnafRes.data as any[]);
         if (kecRes.data) setKecamatanList(kecRes.data as any[]);
         if (kategoriRes.data) setKategoriList(kategoriRes.data as any[]);
-        if (kelRes.data) setKelurahanAll(kelRes.data as any[]);
       } catch (err) { console.error('Gagal memuat referensi:', err); }
     };
     load();
   }, []);
+
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQ(searchInput);
+      setPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => { fetchMustahiq(); }, [page, limit, searchQ]);
 
@@ -89,7 +98,11 @@ export default function PelayananPage() {
     } finally { setIsLoading(false); }
   };
 
-  const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setPage(1); setSearchQ(searchInput); };
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchQ(searchInput);
+    setPage(1);
+  };
   const handleDelete = async (id: number) => {
     if (!confirm('Hapus data ini?')) return;
     try { await mustahiqApi.delete(id); fetchMustahiq(); }
@@ -258,10 +271,10 @@ export default function PelayananPage() {
               <Row label="Tgl. Lahir" value={detailData.tgl_lahir ? new Date(detailData.tgl_lahir).toLocaleDateString('id-ID') : undefined} />
               <Row label="Tgl. Registrasi" value={detailData.registered_date ? new Date(detailData.registered_date).toLocaleDateString('id-ID') : undefined} />
               <Row label="Alamat" value={detailData.alamat} />
-              <Row label="Kecamatan" value={detailData.kecamatan?.nama ?? refName(kecamatanList, detailData.kecamatan_id)} />
-              <Row label="Kelurahan" value={detailData.kelurahan?.nama ?? refName(kelurahanAll, detailData.kelurahan_id)} />
-              <Row label="Asnaf" value={detailData.asnaf?.nama ?? refName(asnafList, detailData.asnaf_id)} />
-              <Row label="Kategori" value={detailData.kategoriMustahiq?.nama ?? refName(kategoriList, detailData.kategori_mustahiq_id)} />
+              <Row label="Kecamatan" value={detailData.kecamatan?.nama || detailData.Kecamatan?.nama || '-'} />
+              <Row label="Kelurahan" value={detailData.kelurahan?.nama || detailData.Kelurahan?.nama || '-'} />
+              <Row label="Asnaf" value={detailData.asnaf?.nama || detailData.Asnaf?.nama || '-'} />
+              <Row label="Kategori" value={detailData.kategoriMustahiq?.nama || detailData.kategori_mustahiq?.nama || '-'} />
 
               <div className="mt-4 pt-4 border-t space-y-2">
                 <div className="flex justify-between items-center">
