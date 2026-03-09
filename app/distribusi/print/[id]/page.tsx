@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { distribusiApi, apiFetch } from '@/lib/api';
-import { Loader2, Printer, Download } from 'lucide-react';
+import { Loader2, Printer } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
@@ -82,36 +82,7 @@ export default function CetakKuitansiDistribusiPage() {
             .catch(() => setDailySeq(null));
     }, [data]);
 
-    const handleDownloadPdf = async () => {
-        const element = document.getElementById('kuitansi-content');
-        if (!element) return;
 
-        const html2pdf = (await import('html2pdf.js')).default;
-
-        // Auto-generate meaningful filename from available data
-        const tglData = data?.tanggal ? new Date(data.tanggal) : new Date();
-        const tglStr = `${String(tglData.getDate()).padStart(2, '0')}-${String(tglData.getMonth() + 1).padStart(2, '0')}-${tglData.getFullYear()}`;
-        const mustahiqName = (data?.Mustahiq?.nama || data?.nama_mustahik || 'Mustahiq').replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_');
-        const filename = `KuitansiDistribusi_${mustahiqName}_${tglStr}.pdf`;
-
-        const opt = {
-            margin: 0,
-            filename,
-            image: { type: 'jpeg' as const, quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff',
-                logging: false,
-                onclone: (clonedDoc: Document) => {
-                    // Do NOT remove stylesheets as it breaks the layout
-                }
-            },
-            jsPDF: { unit: 'mm', format: 'a5', orientation: 'landscape' as const },
-        };
-
-        html2pdf().set(opt).from(element).save();
-    };
 
     if (isLoading) {
         return (
@@ -170,7 +141,7 @@ export default function CetakKuitansiDistribusiPage() {
     ];
 
     return (
-        <div className="print-container bg-gray-50 text-black min-h-screen relative flex flex-col items-center py-4 gap-8">
+        <div className="print-container bg-white text-black min-h-screen relative flex flex-col items-center py-4 gap-8">
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @media print {
@@ -189,9 +160,7 @@ export default function CetakKuitansiDistribusiPage() {
 
             {/* Print Controls */}
             <div className="no-print fixed top-4 right-4 z-50 flex gap-2">
-                <Button onClick={handleDownloadPdf} variant="outline" className="shadow-md border-[#3B4CA8] text-[#3B4CA8] hover:bg-[#3B4CA8] hover:text-white">
-                    <Download className="mr-2 h-4 w-4" /> Simpan PDF
-                </Button>
+
                 <Button onClick={() => window.print()} className="shadow-md bg-[#3B4CA8] hover:bg-[#2A377D]">
                     <Printer className="mr-2 h-4 w-4" /> Cetak Printer (A5 Landscape)
                 </Button>

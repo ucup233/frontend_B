@@ -52,7 +52,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-2 text-center">
           <div className="mx-auto mb-0">
-            <img src="/Logo.png" alt="Logo BAZNAS" className="h-40 w-auto" />
+            <img src="/logo.png" alt="Logo BAZNAS" className="h-40 w-auto" />
           </div>
           <CardDescription>
             Sistem Manajemen Dana Zakat Infak Sedekah
