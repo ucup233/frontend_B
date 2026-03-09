@@ -68,13 +68,15 @@ export function MustahiqForm({ onSuccess, editingId, onCancelEdit }: MustahiqFor
             const kecId = String(d.kecamatan_id || '');
             const kelId = String(d.kelurahan_id || '');
 
-            // Fetch kelurahan list FIRST so Radix UI Select can match the value
-            let fetchedKelList: any[] = [];
+            // 1. Fetch kelurahan list FIRST
             if (kecId) {
               const kelRes = await refApi.list('kelurahan', { kecamatan_id: kecId });
-              if (Array.isArray(kelRes.data)) fetchedKelList = kelRes.data;
+              if (Array.isArray(kelRes.data)) {
+                setKelurahan(kelRes.data);
+              }
             }
-            setKelurahan(fetchedKelList);
+
+            // 2. Then set form data
             setFormData({
               nrm: d.nrm || '',
               nama: d.nama || '',
@@ -92,7 +94,6 @@ export function MustahiqForm({ onSuccess, editingId, onCancelEdit }: MustahiqFor
               registered_date: d.registered_date ? d.registered_date.split('T')[0] : today,
             });
           }
-
         } else {
           setFormData({ ...emptyForm, registered_date: today });
           setKelurahan([]);

@@ -102,17 +102,12 @@ export default function CetakKuitansiDistribusiPage() {
                 scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff',
+                logging: false,
                 onclone: (clonedDoc: Document) => {
-                    // Remove stylesheets with oklch/lab that html2canvas can't parse
-                    clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(el => el.remove());
-                    clonedDoc.querySelectorAll('style').forEach(el => {
-                        if (el.textContent?.includes('oklch') || el.textContent?.includes(' lab(')) {
-                            el.remove();
-                        }
-                    });
+                    // Do NOT remove stylesheets as it breaks the layout
                 }
             },
-            jsPDF: { unit: 'mm', format: [210, 148] as [number, number], orientation: 'landscape' as const },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'landscape' as const },
         };
 
         html2pdf().set(opt).from(element).save();
@@ -211,7 +206,7 @@ export default function CetakKuitansiDistribusiPage() {
                             {/* Header */}
                             <div className="flex justify-between items-start mb-4 shrink-0">
                                 <div className="w-48 relative h-16">
-                                    <Image src="/logo.png" alt="BAZNAS Logo" fill className="object-contain object-left" />
+                                    <img src="/logo.png" alt="BAZNAS Logo" className="h-full object-contain object-left" />
                                 </div>
                                 <div className="flex-1 flex justify-center items-center pt-4">
                                     <div className="text-2xl font-bold underline underline-offset-4 decoration-[#3B4CA8]">KUITANSI</div>

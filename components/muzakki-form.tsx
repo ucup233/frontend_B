@@ -64,21 +64,23 @@ export function MuzakkiForm({ onSuccess, editingId, onCancelEdit }: MuzakkiFormP
         setJenisUpzList(jupzList);
 
         if (editingId) {
-          // Load edit data AFTER refs are loaded to avoid kelurahan issue
+          // Load edit data AFTER refs are loaded
           const res = await muzakkiApi.get(editingId);
           if (res.data) {
             const d: any = res.data;
             const kecId = String(d.kecamatan_id || '');
             const kelId = String(d.kelurahan_id || '');
 
-            // Fetch kelurahan list FIRST, then set both list and form value together
-            // so Radix UI Select finds the matching option in the same render cycle
-            let fetchedKelList: any[] = [];
+            // 1. Fetch kelurahan list FIRST
             if (kecId) {
               const kelRes = await refApi.list('kelurahan', { kecamatan_id: kecId });
-              if (Array.isArray(kelRes.data)) fetchedKelList = kelRes.data;
+              if (Array.isArray(kelRes.data)) {
+                setKelurahanList(kelRes.data);
+              }
             }
-            setKelurahanList(fetchedKelList);
+
+            // 2. Wrap setFormData in a small timeout or just ensure KelurahanList is updated
+            // In React, setting state is async, but we want the Select component to see the options.
             setFormData({
               npwz: d.npwz || '',
               nama: d.nama || '',
@@ -96,7 +98,6 @@ export function MuzakkiForm({ onSuccess, editingId, onCancelEdit }: MuzakkiFormP
               registered_date: d.registered_date ? d.registered_date.split('T')[0] : today,
             });
           }
-
         } else {
           setFormData({ ...emptyForm, registered_date: today });
           setKelurahanList([]);

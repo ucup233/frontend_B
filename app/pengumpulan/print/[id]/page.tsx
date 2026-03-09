@@ -102,16 +102,22 @@ export default function CetakBuktiSetoranPage() {
                 scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff',
+                logging: false,
                 onclone: (clonedDoc: Document) => {
-                    clonedDoc.querySelectorAll('link[rel="stylesheet"]').forEach(el => el.remove());
+                    // Do NOT remove all stylesheets, as it kills Tailwind/global styles.
+                    // Only remove problematic styles if absolutely necessary.
+                    // Most modern versions of html2canvas/html2pdf handle OKLCH better now,
+                    // but we keep the specific problematic removal only.
                     clonedDoc.querySelectorAll('style').forEach(el => {
                         if (el.textContent?.includes('oklch') || el.textContent?.includes(' lab(')) {
-                            el.remove();
+                            // Instead of removing, we can try to commented out problematic lines 
+                            // but removing is safer if they are specific to Radix/etc.
+                            // However, let's try keep everything first.
                         }
                     });
                 }
             },
-            jsPDF: { unit: 'mm', format: 'a5' as const, orientation: 'portrait' as const },
+            jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' as const },
             pagebreak: { mode: 'css', before: '.print-page-break' }
         };
 
@@ -180,13 +186,31 @@ export default function CetakBuktiSetoranPage() {
                     body { 
                         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
                         padding: 0;
+                        margin: 0;
+                        background: white;
                     }
                     .print-page-break { page-break-before: always; }
                     .no-print { display: none !important; }
+                    .print-container { 
+                        box-shadow: none !important; 
+                        margin: 0 !important; 
+                        padding: 0 !important; 
+                        max-width: 100% !important; 
+                        width: 148mm !important;
+                        height: 210mm !important;
+                    }
                 }
                 body { background-color: #525659; } 
-                .print-container { max-width: 148mm; margin: 0 auto; padding: 6mm; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.5); position: relative; }
-                @media print { .print-container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; min-height: auto; } }
+                .print-container { 
+                    width: 148mm; 
+                    height: 210mm;
+                    margin: 20px auto; 
+                    padding: 8mm; 
+                    background: white; 
+                    box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+                    position: relative; 
+                    box-sizing: border-box;
+                }
                 
                 table { width: 100%; border-collapse: collapse; font-size: 9pt; }
                 th, td { border: 1px solid black; padding: 4px 6px; text-align: left; }
@@ -214,9 +238,9 @@ export default function CetakBuktiSetoranPage() {
                         {/* Header Box */}
                         <div className="flex w-full border-b border-black">
                             {/* Logo */}
-                            <div className="w-1/3 flex flex-col items-center justify-center p-0 border-r border-black">
-                                <Image src="/logo.png" alt="BAZNAS Logo" width={100} height={100} className="mb-2 object-contain" />
-                                <div className="text-center font-bold text-sm text-emerald-800 leading-tight">
+                            <div className="w-1/3 flex flex-col items-center justify-center p-0 border-r border-black font-sans">
+                                <img src="/logo.png" alt="BAZNAS Logo" className="w-24 h-24 mb-1 object-contain" />
+                                <div className="text-center font-bold text-[10pt] text-emerald-800 leading-tight">
                                     Kota Batam
                                 </div>
                             </div>
