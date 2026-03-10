@@ -161,7 +161,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-primary text-primary-foreground shadow-sm">
         <div className="flex h-16 w-full items-center justify-between px-6">
@@ -227,8 +227,8 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1">
-          <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 min-w-0 overflow-hidden">
+          <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8 w-full">
             {children}
           </div>
         </main>
