@@ -138,7 +138,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               <Menu className="h-6 w-6" />
             </Button>
             <div className="flex items-center gap-2">
-              <img src="./logo.png" alt="BAZNAS Batam" className="h-10 w-auto" />
+              <img src="/logo.png" alt="BAZNAS Batam" className="h-10 w-auto" />
             </div>
             <div className="hidden text-sm md:block">
               Sistem Manajemen Dana Zakat Batam

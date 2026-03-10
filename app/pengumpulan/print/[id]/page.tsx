@@ -222,7 +222,7 @@ export default function CetakBuktiSetoranPage() {
                         <div className="flex w-full border-b border-black">
                             {/* Logo */}
                             <div className="w-1/3 flex flex-col items-center justify-center p-0 border-r border-black font-sans">
-                                <img src="./logo.png" alt="BAZNAS Logo" className="w-24 h-16 mb-0 object-contain" />
+                                <img src="/logo.png" alt="BAZNAS Logo" className="w-24 h-16 mb-0 object-contain" />
                                 <div className="text-center font-bold text-[10pt] text-emerald-800 leading-tight">
                                     Kota Batam
                                 </div>

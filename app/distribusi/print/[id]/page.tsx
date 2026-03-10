@@ -175,7 +175,7 @@ export default function CetakKuitansiDistribusiPage() {
                             {/* Header */}
                             <div className="flex justify-between items-start mb-4 shrink-0">
                                 <div className="w-48 relative h-16">
-                                    <img src="./logo.png" alt="BAZNAS Logo" className="h-full object-contain object-left" />
+                                    <img src="/logo.png" alt="BAZNAS Logo" className="h-full object-contain object-left" />
                                 </div>
                                 <div className="flex-1 flex justify-center items-center pt-4">
                                     <div className="text-2xl font-bold underline underline-offset-4 decoration-[#3B4CA8]">KUITANSI</div>
