@@ -47,16 +47,6 @@ const REPORT_GROUPS: { group: string; reports: ReportType[] }[] = [
         dateLabel: 'Per Tanggal (YTD)',
       },
       {
-        value: 'arus_kas',
-        label: 'Laporan Arus Kas',
-        description: 'Laporan arus masuk dan keluar kas harian/bulanan',
-        icon: BarChart2,
-        color: 'text-cyan-600',
-        bg: 'bg-cyan-50',
-        border: 'border-cyan-500',
-        dateMode: 'range',
-      },
-      {
         value: 'kas_masuk_harian',
         label: 'Kas Masuk Harian',
         description: 'Laporan penerimaan (kas masuk) pada satu tanggal tertentu',
@@ -260,12 +250,10 @@ export default function LaporanPage() {
         return;
       }
 
-      if (['kas_keluar_program', 'kas_keluar_asnaf', 'kas_keluar_harian', 'perubahan_dana', 'kas_masuk_harian', 'arus_kas'].includes(popupReport.value)) {
+      if (['kas_keluar_program', 'kas_keluar_asnaf', 'kas_keluar_harian', 'perubahan_dana', 'kas_masuk_harian'].includes(popupReport.value)) {
         let path = '/laporan/print';
         if (popupReport.value === 'perubahan_dana') path = '/laporan/perubahan-dana';
         if (popupReport.value === 'kas_masuk_harian') path = '/laporan/kas-masuk';
-        // (Arus Kas currently uses standard /laporan/print API unless defined otherwise in React side.
-        // If arus_kas has a specific backend endpoint or frontend page, we should route it proper)
 
         // For perubahan_dana: always pass Jan 1 of the selected year as start
         // so the backend knows the full-year context
@@ -277,9 +265,6 @@ export default function LaporanPage() {
 
         let url = `${path}?start_date=${startForUrl}&end_date=${endParam}&jenis_data=${popupReport.value}`;
 
-        if (popupReport.value === 'arus_kas') {
-          url = `/laporan/print?start_date=${startForUrl}&end_date=${endParam}&jenis_data=arus_kas`;
-        }
 
         window.open(url, '_blank');
         setPopupReport(null);
