@@ -23,14 +23,14 @@ let authToken: string | null = null;
 export function setAuthToken(token: string) {
   authToken = token;
   if (typeof window !== 'undefined') {
-    localStorage.setItem('authToken', token);
+    sessionStorage.setItem('authToken', token);
   }
 }
 
 export function getAuthToken(): string | null {
   if (authToken) return authToken;
   if (typeof window !== 'undefined') {
-    authToken = localStorage.getItem('authToken');
+    authToken = sessionStorage.getItem('authToken');
   }
   return authToken;
 }
@@ -38,7 +38,7 @@ export function getAuthToken(): string | null {
 export function clearAuthToken() {
   authToken = null;
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authToken');
   }
 }
 
