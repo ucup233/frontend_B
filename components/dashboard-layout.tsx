@@ -1,11 +1,13 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
 import { LogOut, ChevronDown, ChevronRight, Menu } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { useIsMobile } from '@/components/ui/use-mobile';
 
 interface NavChild {
   href: string;
@@ -114,14 +116,49 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setIsMobileOpen(!isMobileOpen);
+    } else {
+      setIsCollapsed(!isCollapsed);
+    }
+  };
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    if (isMobile) {
+      setIsMobileOpen(false);
+    }
+  }, [pathname, isMobile]);
 
   const handleLogout = async () => {
     await logout();
     router.push('/login');
   };
+
+  const renderNavItems = (collapsed: boolean) => (
+    <ul className="space-y-1">
+      {navItems
+        .filter(item => !item.roles || (user && item.roles.includes(user.role)))
+        .map((item) => {
+          const filteredChildren = item.children?.filter(child => !child.roles || (user && child.roles.includes(user.role)));
+          const filteredItem = { ...item, children: filteredChildren };
+          return (
+            <NavGroup
+              key={item.href ?? item.label}
+              item={filteredItem}
+              pathname={pathname}
+              isCollapsed={collapsed}
+            />
+          );
+        })
+      }
+    </ul>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -129,14 +166,36 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-border bg-primary text-primary-foreground shadow-sm">
         <div className="flex h-16 w-full items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="text-primary-foreground hover:bg-primary-foreground/20"
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
+            {isMobile ? (
+              <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-primary-foreground hover:bg-primary-foreground/20"
+                  >
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-64 p-0 bg-sidebar text-sidebar-foreground">
+                  <SheetHeader className="p-4 border-b border-sidebar-border">
+                    <SheetTitle className="text-sidebar-foreground">Menu Navigasi</SheetTitle>
+                  </SheetHeader>
+                  <div className="p-4 overflow-y-auto">
+                    {renderNavItems(false)}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="text-primary-foreground hover:bg-primary-foreground/20"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+            )}
             <div className="flex items-center gap-2">
               <img src="/logo.png" alt="BAZNAS Batam" className="h-10 w-auto" />
             </div>
@@ -161,25 +220,9 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
       <div className="flex min-h-screen">
         {/* Sidebar Navigation */}
-        <nav className={`hidden shrink-0 border-r border-border bg-sidebar text-sidebar-foreground md:block transition-all duration-300 sticky top-16 h-[calc(100vh-4rem)] z-40 ${isCollapsed ? 'w-0 overflow-hidden border-none' : 'w-64 overflow-y-auto overflow-x-hidden'}`}>
+        <nav className={`hidden md:block shrink-0 border-r border-border bg-sidebar text-sidebar-foreground transition-all duration-300 sticky top-16 h-[calc(100vh-4rem)] z-40 ${isCollapsed ? 'w-0 overflow-hidden border-none' : 'w-64 overflow-y-auto overflow-x-hidden'}`}>
           <div className={`p-4 transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
-            <ul className="space-y-1">
-              {navItems
-                .filter(item => !item.roles || (user && item.roles.includes(user.role)))
-                .map((item) => {
-                  const filteredChildren = item.children?.filter(child => !child.roles || (user && child.roles.includes(user.role)));
-                  const filteredItem = { ...item, children: filteredChildren };
-                  return (
-                    <NavGroup
-                      key={item.href ?? item.label}
-                      item={filteredItem}
-                      pathname={pathname}
-                      isCollapsed={isCollapsed}
-                    />
-                  );
-                })
-              }
-            </ul>
+            {renderNavItems(isCollapsed)}
           </div>
         </nav>
 
